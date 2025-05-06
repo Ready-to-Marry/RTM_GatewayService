@@ -38,13 +38,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // PostgreSQL JDBC Driver
-    implementation 'org.postgresql:postgresql:42.2.5'
-
     // Spring Boot Actuator (Health Check용)
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // eureka client
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
 }
