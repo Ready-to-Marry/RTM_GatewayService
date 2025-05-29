@@ -48,19 +48,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             switch (claims.getRole()) {
                 case "ADMIN":
-                    if (path.contains("/admin-service")) {
-                        mutatedRequestBuilder
-                                .header("X-Admin-Id", String.valueOf(claims.getUserId())) // userId 사용
-                                .header("X-Admin-Role", claims.getAdminRole())
-                                .header("X-Role", claims.getAdminRole());
-                    }
+                    mutatedRequestBuilder
+                            .header("X-Admin-Id", String.valueOf(claims.getUserId()))
+                            .header("X-Admin-Role", claims.getAdminRole())
+                            .header("X-Role", claims.getAdminRole());
                     break;
                 case "PARTNER":
-                    if (path.contains("/partner-service")) {
-                        mutatedRequestBuilder
-                                .header("X-Partner-Id", String.valueOf(claims.getPartnerId()))
-                                .header("X-Role", claims.getRole());
-                    }
+                    mutatedRequestBuilder
+                            .header("X-Partner-Id", String.valueOf(claims.getPartnerId()))
+                            .header("X-Role", claims.getRole());
                     break;
                 case "USER":
                 default:
