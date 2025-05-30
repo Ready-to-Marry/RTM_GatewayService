@@ -97,6 +97,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private boolean isSkipPath(String path) {
         return jwtProperties.getSkipPaths().stream()
-                .anyMatch(path::startsWith);
+                .anyMatch(path::contains);
     }
 }
