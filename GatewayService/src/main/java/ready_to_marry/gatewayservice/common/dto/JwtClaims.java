@@ -19,5 +19,7 @@ public class JwtClaims {
 
     // 관리자(ADMIN)일 때만 사용
     private String adminRole;
+
+    private String accountId;
 }
 

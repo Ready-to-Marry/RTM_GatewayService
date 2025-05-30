@@ -15,12 +15,14 @@ import reactor.core.publisher.Mono;
 import ready_to_marry.gatewayservice.common.dto.JwtClaims;
 import ready_to_marry.gatewayservice.common.exception.ErrorCode;
 import ready_to_marry.gatewayservice.common.exception.search.FilterException;
+import ready_to_marry.gatewayservice.config.JwtProperties;
 import ready_to_marry.gatewayservice.util.JwtUtil;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
+    private final JwtProperties jwtProperties;
     private final JwtUtil jwtUtil;
 
     //Mono -> Spring WebFlux가 제공하는 0개 또는 1개의 데이터 비동기 리턴 퍼블리셔
@@ -29,6 +31,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         ServerHttpRequest request = exchange.getRequest();
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String path = request.getURI().getPath();
+
+        if (isSkipPath(path)) {
+            return chain.filter(exchange);
+        }
 
         // Authorization 헤더 체크
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -43,24 +50,26 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
 
             JwtClaims claims = jwtUtil.getClaims(token);
-            String path = request.getURI().getPath();
             ServerHttpRequest.Builder mutatedRequestBuilder = request.mutate();
 
             switch (claims.getRole()) {
                 case "ADMIN":
                     mutatedRequestBuilder
-                            .header("X-Admin-Id", String.valueOf(claims.getUserId()))
+                            .header("X-Account-Id", claims.getAccountId())
+                            .header("X-Admin-Id", claims.getAccountId())
                             .header("X-Admin-Role", claims.getAdminRole())
                             .header("X-Role", claims.getAdminRole());
                     break;
                 case "PARTNER":
                     mutatedRequestBuilder
+                            .header("X-Account-Id", claims.getAccountId())
                             .header("X-Partner-Id", String.valueOf(claims.getPartnerId()))
                             .header("X-Role", claims.getRole());
                     break;
                 case "USER":
                 default:
                     mutatedRequestBuilder
+                            .header("X-Account-Id", claims.getAccountId())
                             .header("X-User-Id", String.valueOf(claims.getUserId()))
                             .header("X-Role", claims.getRole());
                     break;
@@ -84,5 +93,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return -1;
+    }
+
+    private boolean isSkipPath(String path) {
+        return jwtProperties.getSkipPaths().stream()
+                .anyMatch(path::startsWith);
     }
 }

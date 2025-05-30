@@ -4,16 +4,20 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.stereotype.Component;
 import ready_to_marry.gatewayservice.common.dto.JwtClaims;
+import ready_to_marry.gatewayservice.config.JwtProperties;
 
 import java.security.Key;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
-    private final String secret = "WlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlwWlw";
-    private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
+    private final JwtProperties jwtProperties;
+    private final Key key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
@@ -38,6 +42,7 @@ public class JwtUtil {
                 .userId(claims.get("userId", Long.class))
                 .partnerId(claims.get("partnerId", Long.class))
                 .adminRole(claims.get("adminRole", String.class))
+                .accountId(claims.getSubject())
                 .build();
     }
 }
