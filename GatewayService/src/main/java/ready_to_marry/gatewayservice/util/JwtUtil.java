@@ -13,11 +13,13 @@ import ready_to_marry.gatewayservice.config.JwtProperties;
 import java.security.Key;
 
 @Component
-@RequiredArgsConstructor
 public class JwtUtil {
 
-    private final JwtProperties jwtProperties;
-    private final Key key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
+    private final Key key;
+
+    public JwtUtil(JwtProperties jwtProperties) {
+        this.key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
+    }
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
