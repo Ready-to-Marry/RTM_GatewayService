@@ -6,12 +6,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ready_to_marry.gatewayservice.common.dto.JwtClaims;
 import ready_to_marry.gatewayservice.config.JwtProperties;
 
 import java.security.Key;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
@@ -27,6 +29,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            log.warn("[JwtUtil] Token validation failed: {}", e.getMessage(), e);
             return false;
         }
     }
