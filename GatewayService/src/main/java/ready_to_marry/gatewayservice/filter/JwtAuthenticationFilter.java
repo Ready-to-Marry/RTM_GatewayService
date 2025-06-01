@@ -4,7 +4,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -19,7 +18,6 @@ import ready_to_marry.gatewayservice.common.exception.search.FilterException;
 import ready_to_marry.gatewayservice.config.JwtProperties;
 import ready_to_marry.gatewayservice.util.JwtUtil;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
@@ -87,7 +85,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         } catch (MalformedJwtException e) {
             return Mono.error(new FilterException(ErrorCode.MALFORMED_TOKEN));
         } catch (Exception e) {
-            log.error("[JwtAuthenticationFilter] Unknown auth error occurred: {}", e.getMessage(), e);
             return Mono.error(new FilterException(ErrorCode.UNKNOWN_AUTH_ERROR));
         }
     }
