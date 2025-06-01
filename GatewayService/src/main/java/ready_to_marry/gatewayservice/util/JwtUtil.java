@@ -4,31 +4,35 @@ package ready_to_marry.gatewayservice.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ready_to_marry.gatewayservice.common.dto.JwtClaims;
 import ready_to_marry.gatewayservice.config.JwtProperties;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
-    private final SecretKey key;
+    private final JwtProperties props;
+    private Key key;
 
-    public JwtUtil(JwtProperties jwtProperties) {
-        // 0.12.3은 UTF-8 명시 필요
-        this.key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
+    @PostConstruct
+    public void init() {
+        // Base64 디코딩 후 HMAC-SHA256 키 생성
+        byte[] secretBytes = Decoders.BASE64.decode(props.getSecretKey());
+        this.key = Keys.hmacShaKeyFor(secretBytes);
     }
 
     public boolean validateToken(String token) {
         try {
-            // parser() → parserBuilder() 로 변경됨
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+            Jwts.parser().setSigningKey(key).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("[JwtUtil] Token validation failed: {}", e.getMessage(), e);
@@ -37,7 +41,7 @@ public class JwtUtil {
     }
 
     public JwtClaims getClaims(String token) {
-        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        Claims claims = Jwts.parser().setSigningKey(key).build().parseSignedClaims(token).getPayload();
 
         return JwtClaims.builder()
                 .role(claims.get("role", String.class))
