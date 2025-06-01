@@ -1,32 +1,34 @@
 package ready_to_marry.gatewayservice.util;
 
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ready_to_marry.gatewayservice.common.dto.JwtClaims;
 import ready_to_marry.gatewayservice.config.JwtProperties;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 @Slf4j
 @Component
 public class JwtUtil {
 
-    private final Key key;
+    private final SecretKey key;
 
     public JwtUtil(JwtProperties jwtProperties) {
-        this.key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
+        // 0.12.3은 UTF-8 명시 필요
+        this.key = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
     }
 
-    // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            // parser() → parserBuilder() 로 변경됨
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("[JwtUtil] Token validation failed: {}", e.getMessage(), e);
@@ -34,13 +36,8 @@ public class JwtUtil {
         }
     }
 
-    // JwtClaims 객체로 파싱
     public JwtClaims getClaims(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
 
         return JwtClaims.builder()
                 .role(claims.get("role", String.class))
@@ -51,3 +48,4 @@ public class JwtUtil {
                 .build();
     }
 }
+
