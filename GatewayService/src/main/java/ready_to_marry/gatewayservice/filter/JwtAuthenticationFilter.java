@@ -58,10 +58,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 case "ADMIN":
                     mutatedRequestBuilder
                             .header("X-Account-Id", claims.getAccountId())
-                            .header("X-Admin-Id", claims.getAccountId())
+                            .header("X-Admin-Id", String.valueOf(claims.getAccountId()))
                             .header("X-Admin-Role", claims.getAdminRole())
                             .header("X-Role", claims.getAdminRole());
                     System.out.println(claims.getAdminRole());
+                    System.out.println("admin id"+String.valueOf(claims.getAccountId()));
                     System.out.println(claims.getAccountId());
                     System.out.println(claims.getAdminRole());
                     break;
@@ -85,6 +86,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
 
             ServerHttpRequest mutatedRequest = mutatedRequestBuilder.build();
+            log.info("Headers set: {}", mutatedRequest.getHeaders());
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
         } catch (ExpiredJwtException e) {
