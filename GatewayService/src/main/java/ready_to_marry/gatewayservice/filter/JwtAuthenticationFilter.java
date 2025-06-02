@@ -57,31 +57,27 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             switch (claims.getRole()) {
                 case "ADMIN":
                     mutatedRequestBuilder
-                            .header("X-Account-Id", claims.getAccountId())
-                            .header("X-Admin-Id", String.valueOf(claims.getAccountId()))
+                            .header("X-Admin-Id", String.valueOf(claims.getAdminId()))
                             .header("X-Admin-Role", claims.getAdminRole())
-                            .header("X-Role", claims.getAdminRole());
+                            .header("X-Role", claims.getRole());
                     System.out.println(claims.getAdminRole());
-                    System.out.println("admin id"+String.valueOf(claims.getAccountId()));
-                    System.out.println(claims.getAccountId());
-                    System.out.println(claims.getAdminRole());
+                    System.out.println(claims.getAdminId());
+                    System.out.println(claims.getRole());
                     break;
                 case "PARTNER":
                     mutatedRequestBuilder
-                            .header("X-Account-Id", claims.getAccountId())
                             .header("X-Partner-Id", String.valueOf(claims.getPartnerId()))
                             .header("X-Role", claims.getRole());
-                    System.out.println(claims.getRole());
                     System.out.println(claims.getPartnerId());
+                    System.out.println(claims.getRole());
                     break;
                 case "USER":
                 default:
                     mutatedRequestBuilder
-                            .header("X-Account-Id", claims.getAccountId())
                             .header("X-User-Id", String.valueOf(claims.getUserId()))
                             .header("X-Role", claims.getRole());
-                    System.out.println(claims.getRole());
                     System.out.println(claims.getUserId());
+                    System.out.println(claims.getRole());
                     break;
             }
 
