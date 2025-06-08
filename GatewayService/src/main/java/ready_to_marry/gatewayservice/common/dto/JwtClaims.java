@@ -18,6 +18,7 @@ public class JwtClaims {
     private Long partnerId;
 
     // 관리자(ADMIN)일 때만 사용
+    private Long adminId;
     private String adminRole;
 
     private String accountId;

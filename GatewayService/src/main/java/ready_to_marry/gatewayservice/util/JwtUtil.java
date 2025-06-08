@@ -47,6 +47,7 @@ public class JwtUtil {
                 .role(claims.get("role", String.class))
                 .userId(claims.get("userId", Long.class))
                 .partnerId(claims.get("partnerId", Long.class))
+                .adminId(claims.get("adminId", Long.class))
                 .adminRole(claims.get("adminRole", String.class))
                 .accountId(claims.getSubject())
                 .build();
